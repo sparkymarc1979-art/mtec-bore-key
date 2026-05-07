@@ -1,0 +1,9 @@
+{
+  "name": "MTEC Bore and Key Quoting Tool",
+  "short_name": "MTEC BoreKey",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#0f172a",
+  "icons": []
+}
