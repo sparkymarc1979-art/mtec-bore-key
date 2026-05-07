@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTEC Bore and Key Quoting Tool</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    :root {
+      --bg: #111827;
+      --card: #1f2937;
+      --card-2: #273449;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --border: #475569;
+      --blue: #f97316;
+      --blue-dark: #ea580c;
+      --dark: #020617;
+      --green-bg: #14351f;
+      --green-text: #86efac;
+      --amber-bg: #422006;
+      --amber-text: #facc15;
+      --red-bg: #450a0a;
+      --red-text: #fecaca;
+      --steel: #94a3b8;
+      --orange: #f97316;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #334155 0, #111827 42%, #020617 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    h1 { margin: 0; font-size: 32px; }
+    h2 { margin-top: 0; }
+    h3 { margin-bottom: 8px; }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+      gap: 22px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, var(--card), var(--card-2));
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.28); border: 1px solid rgba(148,163,184,0.25);
+      margin-bottom: 22px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    select, input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 15px;
+      background: #0f172a; color: #f8fafc;
+    }
+
+    input:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+    }
+
+    .help {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .summary-box {
+      background: rgba(15,23,42,0.55);
+      border-radius: 14px;
+      padding: 13px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      min-height: 90px;
+    }
+
+    .price-box {
+      background: linear-gradient(160deg, #020617, #111827); border: 1px solid #475569;
+      color: white;
+      border-radius: 18px;
+      padding: 20px;
+      margin: 14px 0;
+    }
+
+    .price-label {
+      color: #cbd5e1;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .unit-price {
+      font-size: 44px;
+      font-weight: 800;
+      margin: 4px 0 18px;
+    }
+
+    .line-total {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 4px 0 0;
+    }
+
+    .details {
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .warning {
+      background: var(--amber-bg);
+      color: var(--amber-text);
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      display: none;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 15px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover { background: var(--blue-dark); }
+
+    button.secondary {
+      background: #0f172a; color: #f8fafc;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.secondary:hover { background: rgba(15,23,42,0.55); }
+
+    button.danger {
+      background: #991b1b;
+    }
+
+    .admin-section { display: none; }
+    .admin-section.open { display: block; }
+
+    .pass {
+      background: var(--green-bg);
+      color: var(--green-text);
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-top: 14px;
+    }
+
+    .fail {
+      background: var(--red-bg);
+      color: var(--red-text);
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-top: 14px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid #475569;
+      padding: 9px;
+    }
+
+    th { background: rgba(15,23,42,0.55); }
+
+    .settings-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .quote-output {
+      white-space: pre-wrap;
+      background: rgba(15,23,42,0.55);
+      border: 1px solid #475569;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+      color: #e2e8f0;
+      display: none;
+    }
+
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      max-width: 120px;
+      max-height: 82px;
+      object-fit: contain;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #475569;
+    }
+
+    .logo-fallback {
+      display: none;
+      width: 100px;
+      height: 64px;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      color: #f97316;
+      font-weight: 900;
+      font-size: 24px;
+      letter-spacing: 1px;
+      border: 1px solid #475569;
+      border-radius: 12px;
+    }
+
+    h1::after {
+      content: "";
+      display: block;
+      width: 120px;
+      height: 4px;
+      margin-top: 10px;
+      background: linear-gradient(90deg, var(--orange), transparent);
+      border-radius: 999px;
+    }
+@media (max-width: 850px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; }
+      .unit-price { font-size: 38px; }
+      .page { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="brand">
+        <img src="./logo.png" alt="MTEC Logo" class="logo" onerror="this.style.display=\'none\';document.getElementById(\'logoFallback\').style.display=\'flex\'" />
+        <div id="logoFallback" class="logo-fallback">MTEC</div>
+        <div>
+          <h1>MTEC Bore and Key Quoting Tool</h1>
+          <div class="subtitle">Staff-friendly pricing calculator for metric and imperial machining work.</div>
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="secondary" onclick="toggleAdmin()">Admin Settings</button>
+        <button class="secondary" onclick="copyQuote()">Place Order</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <div class="form-grid">
+          <div>
+            <label for="unit">Unit System</label>
+            <select id="unit" onchange="onUnitChange()">
+              <option>Metric</option>
+              <option>Imperial</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="bore">Bore Size</label>
+            <select id="bore" onchange="onBoreChange()"></select>
+          </div>
+
+          <div>
+            <label for="length">Bore Length</label>
+            <select id="length" onchange="calculateAndRender()"></select>
+          </div>
+
+          <div>
+            <label for="keywayRequired">Keyway Required?</label>
+            <select id="keywayRequired" onchange="onKeywayRequiredChange()">
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="keyway">Keyway Size</label>
+            <input id="keyway" oninput="calculateAndRender()" />
+            <span id="standardKeyway" class="help">Standard:</span>
+          </div>
+
+          <div>
+            <label for="grub">Grub Screws</label>
+            <select id="grub" onchange="calculateAndRender()">
+              <option selected>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="material">Material</label>
+            <select id="material" onchange="calculateAndRender()">
+              <option>Mild Steel</option>
+              <option>Stainless Steel</option>
+              <option>Aluminium</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="qty">Quantity</label>
+            <input id="qty" type="number" min="1" max="100" value="1" oninput="calculateAndRender()" />
+          </div>
+
+          <div class="summary-box" id="summaryBox">
+            <strong>Selected:</strong><br />
+          </div>
+        </div>
+
+        <div id="quoteOutput" class="quote-output"></div>
+      </div>
+
+      <aside class="card">
+        <h2>£ Quote Price</h2>
+        <div class="price-box">
+          <p class="price-label">Unit price</p>
+          <div id="unitPrice" class="unit-price">£0.00</div>
+          <p class="price-label">Line total</p>
+          <div id="lineTotal" class="line-total">£0.00</div>
+        </div>
+        <div id="priceDetails" class="details"></div>
+        <div id="warning" class="warning"></div>
+      </aside>
+    </section>
+<section id="adminSection" class="card admin-section">
+      <h2>Admin Settings</h2>
+      <p class="settings-note">These settings are saved in this browser/device using local storage. For staff-wide synced settings later, this should be connected to a small database.</p>
+
+      <div class="form-grid">
+        <div>
+          <label>Minimum Price (£)</label>
+          <input id="minimum_price" type="number" step="0.01" />
+        </div>
+        <div>
+          <label>Grub Screw Price Each (£)</label>
+          <input id="grub_screw_price" type="number" step="0.01" />
+        </div>
+        <div>
+          <label>Stainless Multiplier</label>
+          <input id="stainless_multiplier" type="number" step="0.01" />
+        </div>
+        <div>
+          <label>Aluminium Multiplier</label>
+          <input id="aluminium_multiplier" type="number" step="0.01" />
+        </div>
+        <div>
+          <label>Non-standard Keyway Uplift (%)</label>
+          <input id="non_standard_keyway_uplift" type="number" step="0.1" />
+        </div>
+        <div>
+          <label>No-keyway Discount (%)</label>
+          <input id="no_keyway_discount" type="number" step="0.1" />
+        </div>
+      </div>
+
+      <h3>Metric Pricing Tiers</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Max Bore mm</th><th>Base £</th><th>Length Rate £</th></tr>
+          </thead>
+          <tbody id="metricTierTable"></tbody>
+        </table>
+      </div>
+
+      <h3>Imperial Pricing Tiers</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Max Bore inch</th><th>Base £</th><th>Length Rate £</th></tr>
+          </thead>
+          <tbody id="imperialTierTable"></tbody>
+        </table>
+      </div>
+
+      <h3>Quantity Discounts</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Min Qty</th><th>Max Qty</th><th>Discount %</th></tr>
+          </thead>
+          <tbody id="qtyTable"></tbody>
+        </table>
+      </div>
+
+      <div class="button-row">
+        <button onclick="saveAdminSettings()">Save Settings</button>
+        <button class="danger" onclick="resetSettings()">Restore Defaults</button>
+      </div>
+
+      <div id="testStatus" class="pass">Pricing checks ready.</div>
+    </section>
+  </main>
+
+  <script>
+    const defaultSettings = {
+      minimum_price: 12.50,
+      grub_screw_price: 3.00,
+      stainless_multiplier: 1.20,
+      aluminium_multiplier: 1.00,
+      non_standard_keyway_uplift: 10.0,
+      no_keyway_discount: 25.0,
+      metric_tiers: [
+        { name: "6-20mm", max_bore: 20, base_price: 12.50, length_rate: 3.00 },
+        { name: "21-25mm", max_bore: 25, base_price: 15.00, length_rate: 3.50 },
+        { name: "26-30mm", max_bore: 30, base_price: 18.00, length_rate: 4.00 },
+        { name: "31-35mm", max_bore: 35, base_price: 24.00, length_rate: 5.50 },
+        { name: "36-40mm", max_bore: 40, base_price: 30.00, length_rate: 6.50 },
+        { name: "41-45mm", max_bore: 45, base_price: 39.00, length_rate: 7.00 },
+        { name: "46-50mm", max_bore: 50, base_price: 45.00, length_rate: 8.00 },
+        { name: "51-60mm", max_bore: 60, base_price: 55.00, length_rate: 9.50 },
+        { name: "61-75mm", max_bore: 75, base_price: 70.00, length_rate: 11.50 },
+        { name: "76-90mm", max_bore: 90, base_price: 85.00, length_rate: 14.00 },
+        { name: "91-110mm", max_bore: 110, base_price: 105.00, length_rate: 17.00 }
+      ],
+
+      imperial_tiers: [
+        { name: '1/4-3/4"', max_bore: 0.75, base_price: 12.50, length_rate: 3.00 },
+        { name: '13/16-1"', max_bore: 1.0, base_price: 15.00, length_rate: 3.50 },
+        { name: '1 1/16-1 1/4"', max_bore: 1.25, base_price: 18.00, length_rate: 4.00 },
+        { name: '1 5/16-1 3/8"', max_bore: 1.375, base_price: 24.00, length_rate: 5.50 },
+        { name: '1 7/16-1 5/8"', max_bore: 1.625, base_price: 30.00, length_rate: 6.50 },
+        { name: '1 11/16-1 3/4"', max_bore: 1.75, base_price: 39.00, length_rate: 7.00 },
+        { name: '1 13/16-2"', max_bore: 2.0, base_price: 45.00, length_rate: 8.00 },
+        { name: '2 1/16-2 1/2"', max_bore: 2.5, base_price: 55.00, length_rate: 9.50 },
+        { name: '2 9/16-3"', max_bore: 3.0, base_price: 70.00, length_rate: 11.50 },
+        { name: '3 1/16-3 1/2"', max_bore: 3.5, base_price: 85.00, length_rate: 14.00 },
+        { name: '3 9/16-4"', max_bore: 4.0, base_price: 105.00, length_rate: 17.00 }
+      ],
+
+      quantity_discounts: [
+        { min_qty: 1, max_qty: 4, discount: 0 },
+        { min_qty: 5, max_qty: 10, discount: 2 },
+        { min_qty: 11, max_qty: 30, discount: 5 },
+        { min_qty: 31, max_qty: 100, discount: 8 }
+      ]
+    };
+
+    let settings = loadSettings();
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadSettings() {
+      try {
+        const saved = localStorage.getItem("mtec_quote_settings");
+        if (!saved) return clone(defaultSettings);
+        const parsed = JSON.parse(saved);
+        return { ...clone(defaultSettings), ...parsed };
+      } catch {
+        return clone(defaultSettings);
+      }
+    }
+
+    function saveSettings() {
+      localStorage.setItem("mtec_quote_settings", JSON.stringify(settings));
+    }
+
+    function money(value) {
+      return "£" + Number(value).toFixed(2);
+    }
+
+    function gcd(a, b) {
+      return b ? gcd(b, a % b) : a;
+    }
+
+    function formatInch(value) {
+      const whole = Math.floor(value);
+      const frac = value - whole;
+      const den = 16;
+      let num = Math.round(frac * den);
+      if (num === 0) return `${whole}"`;
+      if (num === den) return `${whole + 1}"`;
+      const div = gcd(num, den);
+      num /= div;
+      const reducedDen = den / div;
+      return whole > 0 ? `${whole} ${num}/${reducedDen}"` : `${num}/${reducedDen}"`;
+    }
+
+    function parseImperial(text) {
+      text = String(text).replace(/"/g, "").trim();
+      if (!text) return 0;
+      if (text.includes("/")) {
+        const parts = text.split(" ");
+        const whole = parts.length === 2 ? Number(parts[0]) : 0;
+        const frac = parts.length === 2 ? parts[1] : parts[0];
+        const [n, d] = frac.split("/").map(Number);
+        if (!Number.isFinite(n) || !Number.isFinite(d) || d === 0) return 0;
+        return whole + (n / d);
+      }
+      return Number(text);
+    }
+
+    function metricKeyway(bore) {
+      bore = Number(bore);
+      if (bore <= 6) return 2;
+      if (bore <= 8) return 3;
+      if (bore <= 12) return 4;
+      if (bore <= 17) return 5;
+      if (bore <= 22) return 6;
+      if (bore <= 30) return 8;
+      if (bore <= 38) return 10;
+      if (bore <= 44) return 12;
+      if (bore <= 50) return 14;
+      if (bore <= 58) return 16;
+      if (bore <= 65) return 18;
+      if (bore <= 75) return 20;
+      if (bore <= 85) return 22;
+      if (bore <= 95) return 25;
+      return 28;
+    }
+
+    function imperialKeyway(bore) {
+      bore = Number(bore);
+      if (bore <= 5 / 16) return 1 / 16;
+      if (bore <= 7 / 16) return 3 / 32;
+      if (bore <= 9 / 16) return 1 / 8;
+      if (bore <= 7 / 8) return 3 / 16;
+      if (bore <= 1.25) return 1 / 4;
+      if (bore <= 1.375) return 5 / 16;
+      if (bore <= 1.75) return 3 / 8;
+      if (bore <= 2.25) return 1 / 2;
+      if (bore <= 2.75) return 5 / 8;
+      if (bore <= 3.25) return 3 / 4;
+      if (bore <= 3.75) return 7 / 8;
+      return 1;
+    }
+
+    function getTier(bore, tiers) {
+      return tiers.find(t => Number(bore) <= Number(t.max_bore)) || tiers[tiers.length - 1];
+    }
+
+    function getQtyDiscount(qty) {
+      const band = settings.quantity_discounts.find(b => qty >= Number(b.min_qty) && qty <= Number(b.max_qty));
+      return band ? Number(band.discount) / 100 : 0;
+    }
+
+    function getInputState() {
+      return {
+        unit: document.getElementById("unit").value,
+        boreRaw: document.getElementById("bore").value,
+        lengthRaw: document.getElementById("length").value,
+        keywayRequired: document.getElementById("keywayRequired").value,
+        keywayRaw: document.getElementById("keyway").value,
+        grub: Math.max(0, Math.min(3, Number(document.getElementById("grub").value || 0))),
+        material: document.getElementById("material").value,
+        qty: Math.max(1, Math.min(100, Number(document.getElementById("qty").value || 1)))
+      };
+    }
+
+    function calculateQuoteFromState(state) {
+      let bore, length, standardKeyway, enteredKeyway, tier, lengthIncrements;
+
+      if (state.unit === "Metric") {
+        bore = Number(state.boreRaw);
+        length = Number(state.lengthRaw);
+        standardKeyway = metricKeyway(bore);
+        enteredKeyway = Number(state.keywayRaw);
+        tier = getTier(bore, settings.metric_tiers);
+        lengthIncrements = Math.max(0, (length - 30) / 20);
+      } else {
+        bore = parseImperial(state.boreRaw);
+        length = parseImperial(state.lengthRaw);
+        standardKeyway = imperialKeyway(bore);
+        enteredKeyway = parseImperial(state.keywayRaw);
+        tier = getTier(bore, settings.imperial_tiers);
+        lengthIncrements = Math.max(0, length - 1);
+      }
+
+      let materialMultiplier = 1;
+      if (state.material === "Stainless Steel") materialMultiplier = Number(settings.stainless_multiplier);
+      if (state.material === "Aluminium") materialMultiplier = Number(settings.aluminium_multiplier);
+
+      const hasKeyway = state.keywayRequired === "Yes";
+      const isNonStandard = hasKeyway && Math.abs(Number(enteredKeyway) - Number(standardKeyway)) > 0.0001;
+      const keywayMultiplier = isNonStandard ? 1 + Number(settings.non_standard_keyway_uplift) / 100 : 1;
+      const noKeywayMultiplier = hasKeyway ? 1 : 1 - Number(settings.no_keyway_discount) / 100;
+      const qtyDiscount = getQtyDiscount(state.qty);
+
+      let raw = Number(tier.base_price)
+        + lengthIncrements * Number(tier.length_rate)
+        + state.grub * Number(settings.grub_screw_price);
+
+      raw *= materialMultiplier;
+      raw *= keywayMultiplier;
+      raw *= noKeywayMultiplier;
+      raw *= (1 - qtyDiscount);
+
+      const unitPrice = Math.max(Number(settings.minimum_price), raw);
+
+      return {
+        ...state,
+        bore,
+        length,
+        standardKeyway,
+        enteredKeyway,
+        unitPrice,
+        lineTotal: unitPrice * state.qty,
+        isNonStandard,
+        qtyDiscount
+      };
+    }
+
+    function calculateQuote() {
+      return calculateQuoteFromState(getInputState());
+    }
+
+    function populateDropdowns() {
+      const unit = document.getElementById("unit").value;
+      const bore = document.getElementById("bore");
+      const length = document.getElementById("length");
+      bore.innerHTML = "";
+      length.innerHTML = "";
+
+      if (unit === "Metric") {
+        for (let i = 6; i <= 110; i++) {
+          bore.add(new Option(`${i} mm`, String(i)));
+        }
+        [30, 50, 70, 90, 100, 110].forEach(v => length.add(new Option(`${v} mm`, String(v))));
+        bore.value = "25";
+        length.value = "30";
+        document.getElementById("keyway").value = "8";
+      } else {
+        for (let n = 4; n <= 64; n++) {
+          const value = n / 16;
+          bore.add(new Option(formatInch(value), formatInch(value)));
+        }
+        [1, 1.5, 2, 2.5, 3, 3.5, 4].forEach(v => length.add(new Option(formatInch(v), formatInch(v))));
+        bore.value = '1 1/2"';
+        length.value = '4"';
+        document.getElementById("keyway").value = '3/8"';
+      }
+    }
+
+    function onUnitChange() {
+      populateDropdowns();
+      updateStandardKeyway();
+      calculateAndRender();
+    }
+
+    function onBoreChange() {
+      updateStandardKeyway();
+      const unit = document.getElementById("unit").value;
+      if (document.getElementById("keywayRequired").value === "Yes") {
+        if (unit === "Metric") {
+          const bore = Number(document.getElementById("bore").value);
+          document.getElementById("keyway").value = String(metricKeyway(bore));
+        } else {
+          const bore = parseImperial(document.getElementById("bore").value);
+          document.getElementById("keyway").value = formatInch(imperialKeyway(bore));
+        }
+      }
+      calculateAndRender();
+    }
+
+    function onKeywayRequiredChange() {
+      const disabled = document.getElementById("keywayRequired").value === "No";
+      document.getElementById("keyway").disabled = disabled;
+      calculateAndRender();
+    }
+
+    function updateStandardKeyway() {
+      const unit = document.getElementById("unit").value;
+      let standard;
+      if (unit === "Metric") {
+        standard = metricKeyway(Number(document.getElementById("bore").value)) + " mm";
+      } else {
+        standard = formatInch(imperialKeyway(parseImperial(document.getElementById("bore").value)));
+      }
+      document.getElementById("standardKeyway").textContent = "Standard: " + standard;
+    }
+
+    function calculateAndRender() {
+      const result = calculateQuote();
+      document.getElementById("unitPrice").textContent = money(result.unitPrice);
+      document.getElementById("lineTotal").textContent = money(result.lineTotal);
+
+      const keywayText = document.getElementById("keywayRequired").value === "Yes"
+        ? document.getElementById("keyway").value
+        : "No keyway";
+
+      document.getElementById("summaryBox").innerHTML =
+        `<strong>Selected:</strong><br>${result.boreRaw} bore × ${result.lengthRaw} long<br>Keyway: ${keywayText}<br>Material: ${result.material}<br>Qty: ${result.qty}`;
+
+      document.getElementById("priceDetails").innerHTML =
+        `Quantity discount: ${(result.qtyDiscount * 100).toFixed(0)}%<br>
+         No-keyway discount: ${Number(settings.no_keyway_discount).toFixed(0)}%<br>
+         Non-standard keyway uplift: ${Number(settings.non_standard_keyway_uplift).toFixed(0)}%<br>
+         Minimum price: ${money(settings.minimum_price)}`;
+
+      const warning = document.getElementById("warning");
+      if (result.isNonStandard) {
+        warning.style.display = "block";
+        warning.textContent = "Non-standard keyway uplift applied.";
+      } else {
+        warning.style.display = "none";
+        warning.textContent = "";
+      }
+
+      runChecks();
+    }
+
+    function buildQuoteText() {
+      const r = calculateQuote();
+      const keywayText = r.keywayRequired === "Yes" ? r.keywayRaw : "No keyway";
+      return `MTEC Bore and Key Order Summary
+Unit system: ${r.unit}
+Bore: ${r.boreRaw}
+Length: ${r.lengthRaw}
+Keyway: ${keywayText}
+Grub screws: ${r.grub}
+Material: ${r.material}
+Quantity: ${r.qty}
+
+Unit price: ${money(r.unitPrice)}
+Line total: ${money(r.lineTotal)}`;
+    }
+
+    function copyQuote() {
+      const text = buildQuoteText();
+
+      const subject = encodeURIComponent("MTEC Bore and Key Order Request");
+      const body = encodeURIComponent(
+`Hello,
+
+Please process the following machining order:
+
+${text}
+
+Thank you.`
+      );
+
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+
+      const box = document.getElementById("quoteOutput");
+      box.style.display = "block";
+      box.textContent = text;
+    }
+
+    function toggleAdmin() {
+      const admin = document.getElementById("adminSection");
+      admin.classList.toggle("open");
+      renderAdmin();
+    }
+
+    function renderAdmin() {
+      ["minimum_price", "grub_screw_price", "stainless_multiplier", "aluminium_multiplier", "non_standard_keyway_uplift", "no_keyway_discount"].forEach(key => {
+        document.getElementById(key).value = settings[key];
+      });
+
+      renderTierTable("metricTierTable", settings.metric_tiers, "metric");
+      renderTierTable("imperialTierTable", settings.imperial_tiers, "imperial");
+      renderQtyTable();
+    }
+
+    function renderTierTable(tableId, tiers, prefix) {
+      const tbody = document.getElementById(tableId);
+      tbody.innerHTML = "";
+      tiers.forEach((tier, index) => {
+        const row = document.createElement("tr");
+        ["name", "max_bore", "base_price", "length_rate"].forEach(key => {
+          const td = document.createElement("td");
+          const input = document.createElement("input");
+          input.value = tier[key];
+          input.id = `${prefix}_${index}_${key}`;
+          td.appendChild(input);
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderQtyTable() {
+      const tbody = document.getElementById("qtyTable");
+      tbody.innerHTML = "";
+      settings.quantity_discounts.forEach((band, index) => {
+        const row = document.createElement("tr");
+        ["min_qty", "max_qty", "discount"].forEach(key => {
+          const td = document.createElement("td");
+          const input = document.createElement("input");
+          input.type = "number";
+          input.value = band[key];
+          input.id = `qty_${index}_${key}`;
+          td.appendChild(input);
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
+      });
+    }
+
+    function saveAdminSettings() {
+      ["minimum_price", "grub_screw_price", "stainless_multiplier", "aluminium_multiplier", "non_standard_keyway_uplift", "no_keyway_discount"].forEach(key => {
+        settings[key] = Number(document.getElementById(key).value);
+      });
+
+      settings.metric_tiers.forEach((tier, index) => {
+        ["name", "max_bore", "base_price", "length_rate"].forEach(key => {
+          const value = document.getElementById(`metric_${index}_${key}`).value;
+          tier[key] = key === "name" ? value : Number(value);
+        });
+      });
+
+      settings.imperial_tiers.forEach((tier, index) => {
+        ["name", "max_bore", "base_price", "length_rate"].forEach(key => {
+          const value = document.getElementById(`imperial_${index}_${key}`).value;
+          tier[key] = key === "name" ? value : Number(value);
+        });
+      });
+
+      settings.quantity_discounts.forEach((band, index) => {
+        ["min_qty", "max_qty", "discount"].forEach(key => {
+          band[key] = Number(document.getElementById(`qty_${index}_${key}`).value);
+        });
+      });
+
+      saveSettings();
+      calculateAndRender();
+      alert("Settings saved on this device/browser.");
+    }
+
+    function resetSettings() {
+      if (!confirm("Restore default pricing settings?")) return;
+      settings = clone(defaultSettings);
+      saveSettings();
+      renderAdmin();
+      calculateAndRender();
+    }
+
+    function runCheck(state, expected) {
+      const oldSettings = settings;
+      const result = calculateQuoteFromState(state);
+      return Math.abs(result.unitPrice - expected) <= 0.01;
+    }
+
+    function runChecks() {
+      const checks = [
+        runCheck({ unit: "Metric", boreRaw: "42", lengthRaw: "100", keywayRequired: "Yes", keywayRaw: "12", grub: 0, material: "Mild Steel", qty: 1 }, 60),
+        runCheck({ unit: "Metric", boreRaw: "40", lengthRaw: "100", keywayRequired: "No", keywayRaw: "12", grub: 0, material: "Mild Steel", qty: 1 }, 36),
+        runCheck({ unit: "Metric", boreRaw: "40", lengthRaw: "100", keywayRequired: "Yes", keywayRaw: "14", grub: 0, material: "Mild Steel", qty: 1 }, 66),
+        runCheck({ unit: "Imperial", boreRaw: '1 1/2"', lengthRaw: '4"', keywayRequired: "Yes", keywayRaw: '3/8"', grub: 0, material: "Mild Steel", qty: 1 }, 60)
+      ];
+
+      const pass = checks.every(Boolean);
+      const status = document.getElementById("testStatus");
+      if (status) {
+        status.className = pass ? "pass" : "fail";
+        status.textContent = pass ? "Pricing checks passed." : "Pricing checks failed. Check admin settings.";
+      }
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").catch(() => {});
+      });
+    }
+
+    populateDropdowns();
+    updateStandardKeyway();
+    renderAdmin();
+    calculateAndRender();
+  </script>
+</body>
+</html>
