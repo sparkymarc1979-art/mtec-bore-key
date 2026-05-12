@@ -289,6 +289,25 @@
       background: linear-gradient(90deg, var(--orange), transparent);
       border-radius: 999px;
     }
+
+    .place-order-btn {
+      background: #ff6a00;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 28px;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 6px 18px rgba(255,106,0,0.35);
+      letter-spacing: 0.3px;
+    }
+
+    .place-order-btn:hover {
+      background: #ff7f1f;
+      transform: translateY(-1px);
+    }
+
+
 @media (max-width: 850px) {
       .grid { grid-template-columns: 1fr; }
       h1 { font-size: 26px; }
@@ -309,8 +328,8 @@
         </div>
       </div>
       <div class="button-row">
-        <button class="secondary" onclick="toggleAdmin()">Admin Settings</button>
-        <button class="secondary" onclick="copyQuote()">Place Order</button>
+        
+        <button class="place-order-btn" onclick="copyQuote()">Place Order</button>
       </div>
     </header>
 
@@ -331,7 +350,7 @@
           </div>
 
           <div>
-            <label for="length">Bore Length</label>
+            <label for="length">Bore Length (up to and inc)</label>
             <select id="length" onchange="calculateAndRender()"></select>
           </div>
 
@@ -393,7 +412,7 @@
         <div id="warning" class="warning"></div>
       </aside>
     </section>
-<section id="adminSection" class="card admin-section">
+<section id="adminSection" class="card admin-section" style="display:none !important;">
       <h2>Admin Settings</h2>
       <p class="settings-note">These settings are saved in this browser/device using local storage. For staff-wide synced settings later, this should be connected to a small database.</p>
 
@@ -809,11 +828,7 @@ Thank you.`
       box.textContent = text;
     }
 
-    function toggleAdmin() {
-      const admin = document.getElementById("adminSection");
-      admin.classList.toggle("open");
-      renderAdmin();
-    }
+    function toggleAdmin() { return false; }
 
     function renderAdmin() {
       ["minimum_price", "grub_screw_price", "stainless_multiplier", "aluminium_multiplier", "non_standard_keyway_uplift", "no_keyway_discount"].forEach(key => {
