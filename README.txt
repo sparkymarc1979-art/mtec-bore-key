@@ -15,3 +15,6 @@ Upload these files to GitHub Pages:
 
 After upload:
 Press CTRL+F5 to refresh cache.
+
+
+Place Order recipient email set to: sales@mtecltd.co.uk

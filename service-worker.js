@@ -1,4 +1,4 @@
-const CACHE_NAME = "mtec-public-final-v1";
+const CACHE_NAME = "mtec-public-sales-email-v1";
 const FILES_TO_CACHE = ["./", "./index.html", "./manifest.json", "./service-worker.js"];
 
 self.addEventListener("install", (event) => {
