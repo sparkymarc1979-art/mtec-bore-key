@@ -18,3 +18,9 @@ Press CTRL+F5 to refresh cache.
 
 
 Place Order recipient email set to: sales@mtecltd.co.uk
+
+
+Updated: on-screen order summary now updates live as selections change.
+
+
+Updated: Selected box now includes grub screw quantity.

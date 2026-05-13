@@ -771,7 +771,13 @@
         : "No keyway";
 
       document.getElementById("summaryBox").innerHTML =
-        `<strong>Selected:</strong><br>${result.boreRaw} bore × ${result.lengthRaw} long<br>Keyway: ${keywayText}<br>Material: ${result.material}<br>Qty: ${result.qty}`;
+        `<strong>Selected:</strong><br>${result.boreRaw} bore × ${result.lengthRaw} long<br>Keyway: ${keywayText}<br>Grub screws: ${result.grub}<br>Material: ${result.material}<br>Qty: ${result.qty}`;
+
+      const liveQuoteOutput = document.getElementById("quoteOutput");
+      if (liveQuoteOutput) {
+        liveQuoteOutput.style.display = "block";
+        liveQuoteOutput.textContent = buildQuoteText();
+      }
 
       document.getElementById("priceDetails").innerHTML =
         `Quantity discount: ${(result.qtyDiscount * 100).toFixed(0)}%<br>
