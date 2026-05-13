@@ -308,6 +308,22 @@
     }
 
 
+
+    .reset-btn {
+      background: #334155;
+      color: white;
+      border: 1px solid #64748b;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .reset-btn:hover {
+      background: #475569;
+    }
+
+
 @media (max-width: 850px) {
       .grid { grid-template-columns: 1fr; }
       h1 { font-size: 26px; }
@@ -329,6 +345,7 @@
       </div>
       <div class="button-row">
         
+        <button class="reset-btn" onclick="resetQuote()">Reset</button>
         <button class="place-order-btn" onclick="copyQuote()">Place Order</button>
       </div>
     </header>
@@ -813,6 +830,22 @@ Unit price: ${money(r.unitPrice)}
 Line total: ${money(r.lineTotal)}`;
     }
 
+
+    function resetQuote() {
+      document.getElementById("unit").value = "Metric";
+      populateDropdowns();
+      document.getElementById("bore").value = "25";
+      document.getElementById("length").value = "30";
+      document.getElementById("keywayRequired").value = "Yes";
+      document.getElementById("keyway").disabled = false;
+      document.getElementById("keyway").value = "8";
+      document.getElementById("grub").value = "0";
+      document.getElementById("material").value = "Mild Steel";
+      document.getElementById("qty").value = "1";
+      updateStandardKeyway();
+      calculateAndRender();
+    }
+
     function copyQuote() {
       const text = buildQuoteText();
 
@@ -820,7 +853,7 @@ Line total: ${money(r.lineTotal)}`;
       const body = encodeURIComponent(
 `Hello,
 
-Please process the following machining order:
+Please process the following machining order, My purchase order number is\n🟨__________🟨
 
 ${text}
 

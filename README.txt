@@ -24,3 +24,6 @@ Updated: on-screen order summary now updates live as selections change.
 
 
 Updated: Selected box now includes grub screw quantity.
+
+
+Updated: Added Reset button and purchase order number placeholder in email body.
