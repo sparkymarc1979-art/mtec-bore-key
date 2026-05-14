@@ -694,7 +694,8 @@
       raw *= noKeywayMultiplier;
       raw *= (1 - qtyDiscount);
 
-      const unitPrice = Math.max(Number(settings.minimum_price), raw);
+      const unitPrice = Math.round(Math.max(Number(settings.minimum_price), raw) * 100) / 100;
+      const lineTotal = Math.round((unitPrice * state.qty) * 100) / 100;
 
       return {
         ...state,
@@ -703,7 +704,7 @@
         standardKeyway,
         enteredKeyway,
         unitPrice,
-        lineTotal: unitPrice * state.qty,
+        lineTotal,
         isNonStandard,
         qtyDiscount
       };

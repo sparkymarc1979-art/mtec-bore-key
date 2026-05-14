@@ -27,3 +27,6 @@ Updated: Selected box now includes grub screw quantity.
 
 
 Updated: Added Reset button and purchase order number placeholder in email body.
+
+
+Updated: line total now calculates from the displayed 2-decimal unit price.
