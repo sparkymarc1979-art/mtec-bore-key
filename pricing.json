@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "published_at": "2026-10-22T00:00:00Z",
+  "published_at": "2026-10-26T14:58:07.374Z",
   "settings": {
     "minimum_price": 13.5,
     "grub_screw_price": 3,
@@ -10,10 +10,10 @@
     "internal_circlip_groove_price": 0,
     "boss_removal_price": 0,
     "stainless_multiplier": 1.2,
-    "aluminium_multiplier": 1.0,
-    "non_standard_keyway_uplift": 10.0,
-    "standard_keyway_uplift": 25.0,
-    "general_price_increase": 0.0,
+    "aluminium_multiplier": 1,
+    "non_standard_keyway_uplift": 10,
+    "standard_keyway_uplift": 25,
+    "general_price_increase": 0,
     "metric_tiers": [
       {
         "name": "6-20mm",
