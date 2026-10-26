@@ -28,6 +28,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
 
     body {
       margin: 0;
@@ -58,6 +59,27 @@
     .subtitle {
       color: var(--muted);
       margin-top: 6px;
+    }
+
+    .app-version {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .version-date {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .version-footer {
+      margin-top: 5px;
+      padding: 8px 0 15px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .grid {
@@ -153,6 +175,7 @@
 
     .warning {
       background: var(--amber-bg);
+      white-space: pre-line;
       color: var(--amber-text);
       padding: 10px;
       border-radius: 10px;
@@ -245,7 +268,7 @@
       padding: 14px;
       margin-top: 14px;
       color: #e2e8f0;
-      display: none;
+      display: block;
     }
 
 
@@ -289,41 +312,6 @@
       background: linear-gradient(90deg, var(--orange), transparent);
       border-radius: 999px;
     }
-
-    .place-order-btn {
-      background: #ff6a00;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 16px 28px;
-      font-size: 18px;
-      font-weight: 900;
-      box-shadow: 0 6px 18px rgba(255,106,0,0.35);
-      letter-spacing: 0.3px;
-    }
-
-    .place-order-btn:hover {
-      background: #ff7f1f;
-      transform: translateY(-1px);
-    }
-
-
-
-    .reset-btn {
-      background: #334155;
-      color: white;
-      border: 1px solid #64748b;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .reset-btn:hover {
-      background: #475569;
-    }
-
-
 @media (max-width: 850px) {
       .grid { grid-template-columns: 1fr; }
       h1 { font-size: 26px; }
@@ -336,16 +324,16 @@
   <main class="page">
     <header>
       <div class="brand">
-        <img src="./logo.png" alt="MTEC Logo" class="logo" onerror="this.style.display=\'none\';document.getElementById(\'logoFallback\').style.display=\'flex\'" />
+        <img src="./LOGO.png" alt="MTEC Logo" class="logo" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'" />
         <div id="logoFallback" class="logo-fallback">MTEC</div>
         <div>
           <h1>MTEC Bore and Key Quoting Tool</h1>
           <div class="subtitle">Staff-friendly pricing calculator for metric and imperial machining work.</div>
+          <div class="app-version" id="appVersionHeader">Version 4.2</div>
         </div>
       </div>
       <div class="button-row">
-        
-        <button class="reset-btn" onclick="resetQuote()">Reset</button>
+                <button type="button" class="secondary" id="resetQuoteButton" onclick="return resetQuote(event)">Reset Quote</button>
         <button class="place-order-btn" onclick="copyQuote()">Place Order</button>
       </div>
     </header>
@@ -375,7 +363,7 @@
             <label for="keywayRequired">Keyway Required?</label>
             <select id="keywayRequired" onchange="onKeywayRequiredChange()">
               <option>Yes</option>
-              <option>No</option>
+              <option selected>No</option>
             </select>
           </div>
 
@@ -392,6 +380,36 @@
               <option>1</option>
               <option>2</option>
               <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+
+          <div data-archived-machining hidden>
+            <label for="outsideGrooves">Outside Grooves</label>
+            <select id="outsideGrooves" onchange="calculateAndRender()">
+              <option selected>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+
+          <div data-archived-machining hidden>
+            <label for="internalCirclipGrooves">Internal Circlip Grooves</label>
+            <select id="internalCirclipGrooves" onchange="calculateAndRender()">
+              <option selected>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+
+          <div data-archived-machining hidden>
+            <label for="bossRemoved">Boss Removed</label>
+            <select id="bossRemoved" onchange="calculateAndRender()">
+              <option selected>No</option>
+              <option>Yes</option>
             </select>
           </div>
 
@@ -413,8 +431,7 @@
             <strong>Selected:</strong><br />
           </div>
         </div>
-
-        <div id="quoteOutput" class="quote-output"></div>
+        <div id="quoteOutput" class="quote-output" role="status" aria-live="polite"></div>
       </div>
 
       <aside class="card">
@@ -427,112 +444,64 @@
         </div>
         <div id="priceDetails" class="details"></div>
         <div id="warning" class="warning"></div>
+        <p id="pricingStatus" class="help" role="status" aria-live="polite"></p>
       </aside>
     </section>
-<section id="adminSection" class="card admin-section" style="display:none !important;">
-      <h2>Admin Settings</h2>
-      <p class="settings-note">These settings are saved in this browser/device using local storage. For staff-wide synced settings later, this should be connected to a small database.</p>
 
-      <div class="form-grid">
-        <div>
-          <label>Minimum Price (£)</label>
-          <input id="minimum_price" type="number" step="0.01" />
-        </div>
-        <div>
-          <label>Grub Screw Price Each (£)</label>
-          <input id="grub_screw_price" type="number" step="0.01" />
-        </div>
-        <div>
-          <label>Stainless Multiplier</label>
-          <input id="stainless_multiplier" type="number" step="0.01" />
-        </div>
-        <div>
-          <label>Aluminium Multiplier</label>
-          <input id="aluminium_multiplier" type="number" step="0.01" />
-        </div>
-        <div>
-          <label>Non-standard Keyway Uplift (%)</label>
-          <input id="non_standard_keyway_uplift" type="number" step="0.1" />
-        </div>
-        <div>
-          <label>No-keyway Discount (%)</label>
-          <input id="no_keyway_discount" type="number" step="0.1" />
-        </div>
-      </div>
 
-      <h3>Metric Pricing Tiers</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Tier</th><th>Max Bore mm</th><th>Base £</th><th>Length Rate £</th></tr>
-          </thead>
-          <tbody id="metricTierTable"></tbody>
-        </table>
-      </div>
-
-      <h3>Imperial Pricing Tiers</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Tier</th><th>Max Bore inch</th><th>Base £</th><th>Length Rate £</th></tr>
-          </thead>
-          <tbody id="imperialTierTable"></tbody>
-        </table>
-      </div>
-
-      <h3>Quantity Discounts</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Min Qty</th><th>Max Qty</th><th>Discount %</th></tr>
-          </thead>
-          <tbody id="qtyTable"></tbody>
-        </table>
-      </div>
-
-      <div class="button-row">
-        <button onclick="saveAdminSettings()">Save Settings</button>
-        <button class="danger" onclick="resetSettings()">Restore Defaults</button>
-      </div>
-
-      <div id="testStatus" class="pass">Pricing checks ready.</div>
-    </section>
+    <footer class="version-footer" id="appVersionFooter">MTEC Bore &amp; Key — Version 4.2</footer>
   </main>
 
   <script>
+    // Version information is defined here so the header, admin panel, footer
+    // and emailed order summary always refer to the same release.
+    const APP_VERSION = "4.2";
+    const APP_BUILD_DATE = "22 October 2026";
+    
+
+    // Deferred features: the original controls, Admin rates and pricing code remain
+    // in this file for a future release. OFF means no visible fields, no charges,
+    // no order-summary rows, and no blank grid cells. Leave OFF until approved.
+    const ARCHIVED_MACHINING_ENABLED = false;
+
+    function applyArchivedMachiningVisibility() {
+      document.querySelectorAll("[data-archived-machining]").forEach(element => {
+        element.hidden = !ARCHIVED_MACHINING_ENABLED;
+      });
+    }
+
+    function displayAppVersion() {
+      const versionName = `Version ${APP_VERSION}`;
+      document.title = "MTEC Bore and Key Quoting Tool";
+      document.getElementById("appVersionHeader").textContent = versionName;
+      
+      
+      document.getElementById("appVersionFooter").textContent = `MTEC Bore & Key — ${versionName}`;
+    }
+
     const defaultSettings = {
-      minimum_price: 12.50,
+      minimum_price: 13.50,
       grub_screw_price: 3.00,
+      grub_screw_second_price: 2.50,
+      grub_screw_additional_price: 2.00,
+      outside_groove_price: 0,
+      internal_circlip_groove_price: 0,
+      boss_removal_price: 0,
       stainless_multiplier: 1.20,
       aluminium_multiplier: 1.00,
       non_standard_keyway_uplift: 10.0,
-      no_keyway_discount: 25.0,
+      standard_keyway_uplift: 25.0,
+      general_price_increase: 0.0,
       metric_tiers: [
-        { name: "6-20mm", max_bore: 20, base_price: 12.50, length_rate: 3.00 },
-        { name: "21-25mm", max_bore: 25, base_price: 15.00, length_rate: 3.50 },
-        { name: "26-30mm", max_bore: 30, base_price: 18.00, length_rate: 4.00 },
-        { name: "31-35mm", max_bore: 35, base_price: 24.00, length_rate: 5.50 },
-        { name: "36-40mm", max_bore: 40, base_price: 30.00, length_rate: 6.50 },
-        { name: "41-45mm", max_bore: 45, base_price: 39.00, length_rate: 7.00 },
-        { name: "46-50mm", max_bore: 50, base_price: 45.00, length_rate: 8.00 },
-        { name: "51-60mm", max_bore: 60, base_price: 55.00, length_rate: 9.50 },
-        { name: "61-75mm", max_bore: 75, base_price: 70.00, length_rate: 11.50 },
-        { name: "76-90mm", max_bore: 90, base_price: 85.00, length_rate: 14.00 },
-        { name: "91-110mm", max_bore: 110, base_price: 105.00, length_rate: 17.00 }
-      ],
-
-      imperial_tiers: [
-        { name: '1/4-3/4"', max_bore: 0.75, base_price: 12.50, length_rate: 3.00 },
-        { name: '13/16-1"', max_bore: 1.0, base_price: 15.00, length_rate: 3.50 },
-        { name: '1 1/16-1 1/4"', max_bore: 1.25, base_price: 18.00, length_rate: 4.00 },
-        { name: '1 5/16-1 3/8"', max_bore: 1.375, base_price: 24.00, length_rate: 5.50 },
-        { name: '1 7/16-1 5/8"', max_bore: 1.625, base_price: 30.00, length_rate: 6.50 },
-        { name: '1 11/16-1 3/4"', max_bore: 1.75, base_price: 39.00, length_rate: 7.00 },
-        { name: '1 13/16-2"', max_bore: 2.0, base_price: 45.00, length_rate: 8.00 },
-        { name: '2 1/16-2 1/2"', max_bore: 2.5, base_price: 55.00, length_rate: 9.50 },
-        { name: '2 9/16-3"', max_bore: 3.0, base_price: 70.00, length_rate: 11.50 },
-        { name: '3 1/16-3 1/2"', max_bore: 3.5, base_price: 85.00, length_rate: 14.00 },
-        { name: '3 9/16-4"', max_bore: 4.0, base_price: 105.00, length_rate: 17.00 }
+        { name: "6-20mm", max_bore: 20, base_price: 13.50, length_rate: 3.00 },
+        { name: "21-25mm", max_bore: 25, base_price: 14.50, length_rate: 3.50 },
+        { name: "26-30mm", max_bore: 30, base_price: 15.00, length_rate: 4.00 },
+        { name: "31-35mm", max_bore: 35, base_price: 20.00, length_rate: 4.50 },
+        { name: "36-40mm", max_bore: 40, base_price: 26.00, length_rate: 5.50 },
+        { name: "41-45mm", max_bore: 45, base_price: 32.00, length_rate: 6.50 },
+        { name: "46-50mm", max_bore: 50, base_price: 38.00, length_rate: 7.50 },
+        { name: "51-55mm", max_bore: 55, base_price: 43.00, length_rate: 8.50 },
+        { name: "56-60mm", max_bore: 60, base_price: 45.00, length_rate: 9.50 }
       ],
 
       quantity_discounts: [
@@ -543,25 +512,45 @@
       ]
     };
 
-    let settings = loadSettings();
+    // Customer release: approved fixed rates, not editable or loaded from browser storage.
+    let settings = JSON.parse(JSON.stringify(defaultSettings));
+    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
-    function clone(obj) {
-      return JSON.parse(JSON.stringify(obj));
-    }
 
-    function loadSettings() {
-      try {
-        const saved = localStorage.getItem("mtec_quote_settings");
-        if (!saved) return clone(defaultSettings);
-        const parsed = JSON.parse(saved);
-        return { ...clone(defaultSettings), ...parsed };
-      } catch {
-        return clone(defaultSettings);
+    const PRICING_FILE = "pricing.json";
+    function validatePublishedPricing(payload) {
+      if (!payload || payload.schema_version !== 1 || !payload.settings || typeof payload.settings !== "object") {
+        throw new Error("Invalid pricing file format");
       }
+      const raw = payload.settings;
+      const numericKeys = ["minimum_price","grub_screw_price","grub_screw_second_price","grub_screw_additional_price","outside_groove_price","internal_circlip_groove_price","boss_removal_price","stainless_multiplier","aluminium_multiplier","non_standard_keyway_uplift","standard_keyway_uplift","general_price_increase"];
+      const result = clone(defaultSettings);
+      for (const key of numericKeys) {
+        if (typeof raw[key] !== "number" || !Number.isFinite(raw[key]) || raw[key] < 0 || raw[key] > 100000) throw new Error("Invalid setting: " + key);
+        result[key] = raw[key];
+      }
+      if (!Array.isArray(raw.metric_tiers) || raw.metric_tiers.length !== 9) throw new Error("Expected nine metric pricing tiers");
+      result.metric_tiers = raw.metric_tiers.map((tier,index) => {
+        const expected = [20,25,30,35,40,45,50,55,60][index];
+        if (!tier || tier.max_bore !== expected || !Number.isFinite(tier.base_price) || tier.base_price < 0 ||
+            !Number.isFinite(tier.length_rate) || tier.length_rate < 0 || typeof tier.name !== "string") throw new Error("Invalid metric tier: " + expected);
+        return {name: tier.name, max_bore: expected, base_price: tier.base_price, length_rate: tier.length_rate};
+      });
+      if (!Array.isArray(raw.quantity_discounts) || raw.quantity_discounts.length !== 4) throw new Error("Invalid quantity table");
+      result.quantity_discounts = raw.quantity_discounts.map((row,index) => {
+        const expected = [[1,4],[5,10],[11,30],[31,100]][index];
+        if (!row || row.min_qty !== expected[0] || row.max_qty !== expected[1] || !Number.isFinite(row.discount) || row.discount < 0 || row.discount >= 100) throw new Error("Invalid quantity band");
+        return {min_qty: row.min_qty, max_qty: row.max_qty, discount: row.discount};
+      });
+      return result;
     }
 
-    function saveSettings() {
-      localStorage.setItem("mtec_quote_settings", JSON.stringify(settings));
+    function pricingPayload() {
+      return {
+        schema_version: 1,
+        published_at: new Date().toISOString(),
+        settings: clone(settings)
+      };
     }
 
     function money(value) {
@@ -575,7 +564,7 @@
     function formatInch(value) {
       const whole = Math.floor(value);
       const frac = value - whole;
-      const den = 16;
+      const den = 32;
       let num = Math.round(frac * den);
       if (num === 0) return `${whole}"`;
       if (num === den) return `${whole + 1}"`;
@@ -601,8 +590,8 @@
 
     function metricKeyway(bore) {
       bore = Number(bore);
-      if (bore <= 6) return 2;
-      if (bore <= 8) return 3;
+      if (bore <= 8) return 2;
+      if (bore <= 10) return 3;
       if (bore <= 12) return 4;
       if (bore <= 17) return 5;
       if (bore <= 22) return 6;
@@ -650,10 +639,20 @@
         lengthRaw: document.getElementById("length").value,
         keywayRequired: document.getElementById("keywayRequired").value,
         keywayRaw: document.getElementById("keyway").value,
-        grub: Math.max(0, Math.min(3, Number(document.getElementById("grub").value || 0))),
+        grub: Math.max(0, Math.min(5, Number(document.getElementById("grub").value || 0))),
+        outsideGrooves: ARCHIVED_MACHINING_ENABLED ? Math.max(0, Math.min(3, Number(document.getElementById("outsideGrooves").value || 0))) : 0,
+        internalCirclipGrooves: ARCHIVED_MACHINING_ENABLED ? Math.max(0, Math.min(3, Number(document.getElementById("internalCirclipGrooves").value || 0))) : 0,
+        bossRemoved: ARCHIVED_MACHINING_ENABLED ? document.getElementById("bossRemoved").value : "No",
         material: document.getElementById("material").value,
         qty: Math.max(1, Math.min(100, Number(document.getElementById("qty").value || 1)))
       };
+    }
+
+    function calculateGrubScrewCharge(count) {
+      const n = Math.max(0, Math.min(5, Math.trunc(Number(count) || 0)));
+      return (n >= 1 ? Number(settings.grub_screw_price) : 0)
+        + (n >= 2 ? Number(settings.grub_screw_second_price) : 0)
+        + Math.max(0, n - 2) * Number(settings.grub_screw_additional_price);
     }
 
     function calculateQuoteFromState(state) {
@@ -671,8 +670,20 @@
         length = parseImperial(state.lengthRaw);
         standardKeyway = imperialKeyway(bore);
         enteredKeyway = parseImperial(state.keywayRaw);
-        tier = getTier(bore, settings.imperial_tiers);
-        lengthIncrements = Math.max(0, length - 1);
+        // Same Mild Steel prices for physically equivalent imperial and metric sizes.
+        const boreMm = bore * 25.4;
+        const lengthMm = length * 25.4;
+        tier = getTier(boreMm, settings.metric_tiers);
+        lengthIncrements = Math.max(0, (lengthMm - 30) / 20);
+      }
+
+      // The range restriction must work even when calculateQuoteFromState is called
+      // directly, not only through the bore selector.
+      if (state.unit === "Metric" && (!Number.isFinite(bore) || bore < 6 || bore > 60)) {
+        throw new RangeError("Metric bore must be between 6 and 60 mm.");
+      }
+      if (state.unit === "Imperial" && (!Number.isFinite(bore) || bore < 0.25 || bore > 2.3125)) {
+        throw new RangeError("Imperial bore must be between 1/4 and 2 5/16 inches (within 6–60 mm range).");
       }
 
       let materialMultiplier = 1;
@@ -681,21 +692,33 @@
 
       const hasKeyway = state.keywayRequired === "Yes";
       const isNonStandard = hasKeyway && Math.abs(Number(enteredKeyway) - Number(standardKeyway)) > 0.0001;
-      const keywayMultiplier = isNonStandard ? 1 + Number(settings.non_standard_keyway_uplift) / 100 : 1;
-      const noKeywayMultiplier = hasKeyway ? 1 : 1 - Number(settings.no_keyway_discount) / 100;
+      const standardKeywayMultiplier = hasKeyway ? 1 + Number(settings.standard_keyway_uplift) / 100 : 1;
+      const nonStandardMultiplier = isNonStandard ? 1 + Number(settings.non_standard_keyway_uplift) / 100 : 1;
       const qtyDiscount = getQtyDiscount(state.qty);
 
-      let raw = Number(tier.base_price)
-        + lengthIncrements * Number(tier.length_rate)
-        + state.grub * Number(settings.grub_screw_price);
+      // Bore-only baseline, then positive charges for the keyway if required.
+      const boreOnly = Number(tier.base_price) + lengthIncrements * Number(tier.length_rate);
+      const boreWithKeyway = boreOnly * standardKeywayMultiplier * nonStandardMultiplier;
 
-      raw *= materialMultiplier;
-      raw *= keywayMultiplier;
-      raw *= noKeywayMultiplier;
-      raw *= (1 - qtyDiscount);
+      // Other machining does not attract an extra keyway percentage.
+      // Existing quantity discounts continue to apply to these operations.
+      const otherMachining = ARCHIVED_MACHINING_ENABLED
+        ? (state.outsideGrooves || 0) * Number(settings.outside_groove_price)
+          + (state.internalCirclipGrooves || 0) * Number(settings.internal_circlip_groove_price)
+          + (state.bossRemoved === "Yes" ? Number(settings.boss_removal_price) : 0)
+        : 0;
+      const discountedMachining = (boreWithKeyway + otherMachining) * (1 - qtyDiscount);
 
-      const unitPrice = Math.round(Math.max(Number(settings.minimum_price), raw) * 100) / 100;
-      const lineTotal = Math.round((unitPrice * state.qty) * 100) / 100;
+      // Grub screws retain fixed progressive rates, outside quantity discounts.
+      const grubCharge = calculateGrubScrewCharge(state.grub);
+      const beforeMaterialMultiplier = Math.max(Number(settings.minimum_price), discountedMachining) + grubCharge;
+      // Approved 3.7 material policy: Aluminium matches Mild Steel; Stainless
+      // adds 20% across ALL machining, including the progressive grub charge.
+      // Apply the material multiplier once after minimum/quantity handling.
+      const beforeGeneralIncrease = beforeMaterialMultiplier * materialMultiplier;
+      // General increase applies once to the complete price.
+      const increaseMultiplier = 1 + Number(settings.general_price_increase) / 100;
+      const unitPrice = beforeGeneralIncrease * increaseMultiplier;
 
       return {
         ...state,
@@ -704,9 +727,18 @@
         standardKeyway,
         enteredKeyway,
         unitPrice,
-        lineTotal,
+        boreOnly,
+        boreWithKeyway,
+        otherMachining,
+        grubCharge,
+        lineTotal: unitPrice * state.qty,
         isNonStandard,
-        qtyDiscount
+        qtyDiscount,
+        unpricedOperations: ARCHIVED_MACHINING_ENABLED ? [
+          state.outsideGrooves > 0 && Number(settings.outside_groove_price) === 0 ? "Outside Grooves" : null,
+          state.internalCirclipGrooves > 0 && Number(settings.internal_circlip_groove_price) === 0 ? "Internal Circlip Grooves" : null,
+          state.bossRemoved === "Yes" && Number(settings.boss_removal_price) === 0 ? "Boss Removed" : null
+        ].filter(Boolean) : []
       };
     }
 
@@ -722,7 +754,7 @@
       length.innerHTML = "";
 
       if (unit === "Metric") {
-        for (let i = 6; i <= 110; i++) {
+        for (let i = 6; i <= 60; i++) {
           bore.add(new Option(`${i} mm`, String(i)));
         }
         [30, 50, 70, 90, 100, 110].forEach(v => length.add(new Option(`${v} mm`, String(v))));
@@ -730,7 +762,7 @@
         length.value = "30";
         document.getElementById("keyway").value = "8";
       } else {
-        for (let n = 4; n <= 64; n++) {
+        for (let n = 4; n <= 37; n++) {
           const value = n / 16;
           bore.add(new Option(formatInch(value), formatInch(value)));
         }
@@ -764,7 +796,17 @@
 
     function onKeywayRequiredChange() {
       const disabled = document.getElementById("keywayRequired").value === "No";
-      document.getElementById("keyway").disabled = disabled;
+      const keyway = document.getElementById("keyway");
+      keyway.disabled = disabled;
+      if (!disabled) {
+        // Re-select the standard key for the CURRENT bore when Yes is chosen,
+        // even if the diameter was changed while the keyway was disabled.
+        const unit = document.getElementById("unit").value;
+        keyway.value = unit === "Metric"
+          ? String(metricKeyway(Number(document.getElementById("bore").value)))
+          : formatInch(imperialKeyway(parseImperial(document.getElementById("bore").value)));
+      }
+      updateStandardKeyway();
       calculateAndRender();
     }
 
@@ -781,6 +823,14 @@
 
     function calculateAndRender() {
       const result = calculateQuote();
+      if (!customerPricingReady && location.protocol !== "file:") {
+        document.getElementById("unitPrice").textContent = "—";
+        document.getElementById("lineTotal").textContent = "—";
+        document.getElementById("quoteOutput").textContent = "Current prices unavailable. Contact MTEC for a quotation.";
+        return;
+      }
+      // As in the original live tool, keep the order summary visible and current.
+      document.getElementById("quoteOutput").textContent = buildQuoteText();
       document.getElementById("unitPrice").textContent = money(result.unitPrice);
       document.getElementById("lineTotal").textContent = money(result.lineTotal);
 
@@ -788,73 +838,68 @@
         ? document.getElementById("keyway").value
         : "No keyway";
 
+      const deferredDetails = ARCHIVED_MACHINING_ENABLED
+        ? `<br>Outside grooves: ${result.outsideGrooves}<br>Internal circlip grooves: ${result.internalCirclipGrooves}<br>Boss removed: ${result.bossRemoved}`
+        : "";
+      const safeText = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
       document.getElementById("summaryBox").innerHTML =
-        `<strong>Selected:</strong><br>${result.boreRaw} bore × ${result.lengthRaw} long<br>Keyway: ${keywayText}<br>Grub screws: ${result.grub}<br>Material: ${result.material}<br>Qty: ${result.qty}`;
+        `<strong>Selected:</strong><br>${safeText(result.boreRaw)} bore × ${safeText(result.lengthRaw)} long<br>Keyway: ${safeText(keywayText)}<br>Grub screws: ${result.grub}${deferredDetails}<br>Material: ${safeText(result.material)}<br>Qty: ${result.qty}`;
 
-      const liveQuoteOutput = document.getElementById("quoteOutput");
-      if (liveQuoteOutput) {
-        liveQuoteOutput.style.display = "block";
-        liveQuoteOutput.textContent = buildQuoteText();
-      }
-
-      document.getElementById("priceDetails").innerHTML =
-        `Quantity discount: ${(result.qtyDiscount * 100).toFixed(0)}%<br>
-         No-keyway discount: ${Number(settings.no_keyway_discount).toFixed(0)}%<br>
-         Non-standard keyway uplift: ${Number(settings.non_standard_keyway_uplift).toFixed(0)}%<br>
-         Minimum price: ${money(settings.minimum_price)}`;
+      // Customer view: no internal percentage breakdown or individual rates.
+      // Quantity discount may be shown, as requested.
+      const priceDetails = document.getElementById("priceDetails");
+      priceDetails.textContent = result.qtyDiscount > 0
+        ? `Machining quantity discount: ${(result.qtyDiscount * 100).toFixed(0)}%`
+        : "";
+      priceDetails.style.display = result.qtyDiscount > 0 ? "block" : "none";
 
       const warning = document.getElementById("warning");
+      const warnings = [];
       if (result.isNonStandard) {
-        warning.style.display = "block";
-        warning.textContent = "Non-standard keyway uplift applied.";
-      } else {
-        warning.style.display = "none";
-        warning.textContent = "";
+        warnings.push("Non-standard keyway uplift applied.");
       }
+      if (result.unpricedOperations.length) {
+        warnings.push("NOT YET PRICED: " + result.unpricedOperations.join(", ") + ". Contact MTEC for pricing before placing an order.");
+      }
+      warning.style.display = warnings.length ? "block" : "none";
+      warning.textContent = warnings.join("\n");
 
-      runChecks();
     }
 
     function buildQuoteText() {
       const r = calculateQuote();
       const keywayText = r.keywayRequired === "Yes" ? r.keywayRaw : "No keyway";
+      const deferredOrderDetails = ARCHIVED_MACHINING_ENABLED
+        ? `\nOutside grooves: ${r.outsideGrooves}\nInternal circlip grooves: ${r.internalCirclipGrooves}\nBoss removed: ${r.bossRemoved}`
+        : "";
       return `MTEC Bore and Key Order Summary
+Tool version: Version ${APP_VERSION}
 Unit system: ${r.unit}
 Bore: ${r.boreRaw}
 Length: ${r.lengthRaw}
 Keyway: ${keywayText}
-Grub screws: ${r.grub}
+Grub screws: ${r.grub}${deferredOrderDetails}
 Material: ${r.material}
 Quantity: ${r.qty}
 
 Unit price: ${money(r.unitPrice)}
-Line total: ${money(r.lineTotal)}`;
-    }
-
-
-    function resetQuote() {
-      document.getElementById("unit").value = "Metric";
-      populateDropdowns();
-      document.getElementById("bore").value = "25";
-      document.getElementById("length").value = "30";
-      document.getElementById("keywayRequired").value = "Yes";
-      document.getElementById("keyway").disabled = false;
-      document.getElementById("keyway").value = "8";
-      document.getElementById("grub").value = "0";
-      document.getElementById("material").value = "Mild Steel";
-      document.getElementById("qty").value = "1";
-      updateStandardKeyway();
-      calculateAndRender();
+Line total: ${money(r.lineTotal)}${r.isNonStandard ? "\nNon-standard keyway uplift applied." : ""}${r.unpricedOperations.length ? "\n\nWARNING - Additional machining not yet priced: " + r.unpricedOperations.join(", ") : ""}`;
     }
 
     function copyQuote() {
+      if (!customerPricingReady && window.location.protocol !== "file:") {
+        alert("Live pricing is currently unavailable. Please contact MTEC for a quotation.");
+        return;
+      }
+      const result = calculateQuote();
+      if (result.unpricedOperations.length && !confirm("Some selected additional machining operations have not yet been priced. Continue with Place Order anyway?")) return;
       const text = buildQuoteText();
 
       const subject = encodeURIComponent("MTEC Bore and Key Order Request");
       const body = encodeURIComponent(
 `Hello,
 
-Please process the following machining order, My purchase order number is\n🟨__________🟨
+Please process the following machining order:
 
 ${text}
 
@@ -863,115 +908,58 @@ Thank you.`
 
       window.location.href = `mailto:sales@mtecltd.co.uk?subject=${subject}&body=${body}`;
 
-      const box = document.getElementById("quoteOutput");
-      box.style.display = "block";
-      box.textContent = text;
+      document.getElementById("quoteOutput").textContent = text;
     }
 
-    function toggleAdmin() { return false; }
-
-    function renderAdmin() {
-      ["minimum_price", "grub_screw_price", "stainless_multiplier", "aluminium_multiplier", "non_standard_keyway_uplift", "no_keyway_discount"].forEach(key => {
-        document.getElementById(key).value = settings[key];
-      });
-
-      renderTierTable("metricTierTable", settings.metric_tiers, "metric");
-      renderTierTable("imperialTierTable", settings.imperial_tiers, "imperial");
-      renderQtyTable();
+    function resetQuote(event) {
+      // Never submit a parent form or navigate/reload the page.
+      // Resetting the quote must not alter the customer's saved Admin pricing.
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      document.getElementById("unit").value = "Metric";
+      populateDropdowns(); // 25 mm bore, 30 mm long.
+      document.getElementById("keywayRequired").value = "No";
+      document.getElementById("keyway").value = String(metricKeyway(Number(document.getElementById("bore").value)));
+      document.getElementById("grub").value = "0";
+      document.getElementById("outsideGrooves").value = "0";
+      document.getElementById("internalCirclipGrooves").value = "0";
+      document.getElementById("bossRemoved").value = "No";
+      document.getElementById("material").value = "Mild Steel";
+      document.getElementById("qty").value = "1";
+      document.getElementById("quoteOutput").textContent = "";
+      updateStandardKeyway();
+      onKeywayRequiredChange(); // Re-enables keyway and refreshes quote on this page.
+      return false;
     }
 
-    function renderTierTable(tableId, tiers, prefix) {
-      const tbody = document.getElementById(tableId);
-      tbody.innerHTML = "";
-      tiers.forEach((tier, index) => {
-        const row = document.createElement("tr");
-        ["name", "max_bore", "base_price", "length_rate"].forEach(key => {
-          const td = document.createElement("td");
-          const input = document.createElement("input");
-          input.value = tier[key];
-          input.id = `${prefix}_${index}_${key}`;
-          td.appendChild(input);
-          row.appendChild(td);
-        });
-        tbody.appendChild(row);
-      });
-    }
 
-    function renderQtyTable() {
-      const tbody = document.getElementById("qtyTable");
-      tbody.innerHTML = "";
-      settings.quantity_discounts.forEach((band, index) => {
-        const row = document.createElement("tr");
-        ["min_qty", "max_qty", "discount"].forEach(key => {
-          const td = document.createElement("td");
-          const input = document.createElement("input");
-          input.type = "number";
-          input.value = band[key];
-          input.id = `qty_${index}_${key}`;
-          td.appendChild(input);
-          row.appendChild(td);
-        });
-        tbody.appendChild(row);
-      });
-    }
-
-    function saveAdminSettings() {
-      ["minimum_price", "grub_screw_price", "stainless_multiplier", "aluminium_multiplier", "non_standard_keyway_uplift", "no_keyway_discount"].forEach(key => {
-        settings[key] = Number(document.getElementById(key).value);
-      });
-
-      settings.metric_tiers.forEach((tier, index) => {
-        ["name", "max_bore", "base_price", "length_rate"].forEach(key => {
-          const value = document.getElementById(`metric_${index}_${key}`).value;
-          tier[key] = key === "name" ? value : Number(value);
-        });
-      });
-
-      settings.imperial_tiers.forEach((tier, index) => {
-        ["name", "max_bore", "base_price", "length_rate"].forEach(key => {
-          const value = document.getElementById(`imperial_${index}_${key}`).value;
-          tier[key] = key === "name" ? value : Number(value);
-        });
-      });
-
-      settings.quantity_discounts.forEach((band, index) => {
-        ["min_qty", "max_qty", "discount"].forEach(key => {
-          band[key] = Number(document.getElementById(`qty_${index}_${key}`).value);
-        });
-      });
-
-      saveSettings();
-      calculateAndRender();
-      alert("Settings saved on this device/browser.");
-    }
-
-    function resetSettings() {
-      if (!confirm("Restore default pricing settings?")) return;
-      settings = clone(defaultSettings);
-      saveSettings();
-      renderAdmin();
-      calculateAndRender();
-    }
-
-    function runCheck(state, expected) {
-      const oldSettings = settings;
-      const result = calculateQuoteFromState(state);
-      return Math.abs(result.unitPrice - expected) <= 0.01;
-    }
-
-    function runChecks() {
-      const checks = [
-        runCheck({ unit: "Metric", boreRaw: "42", lengthRaw: "100", keywayRequired: "Yes", keywayRaw: "12", grub: 0, material: "Mild Steel", qty: 1 }, 60),
-        runCheck({ unit: "Metric", boreRaw: "40", lengthRaw: "100", keywayRequired: "No", keywayRaw: "12", grub: 0, material: "Mild Steel", qty: 1 }, 36),
-        runCheck({ unit: "Metric", boreRaw: "40", lengthRaw: "100", keywayRequired: "Yes", keywayRaw: "14", grub: 0, material: "Mild Steel", qty: 1 }, 66),
-        runCheck({ unit: "Imperial", boreRaw: '1 1/2"', lengthRaw: '4"', keywayRequired: "Yes", keywayRaw: '3/8"', grub: 0, material: "Mild Steel", qty: 1 }, 60)
-      ];
-
-      const pass = checks.every(Boolean);
-      const status = document.getElementById("testStatus");
-      if (status) {
-        status.className = pass ? "pass" : "fail";
-        status.textContent = pass ? "Pricing checks passed." : "Pricing checks failed. Check admin settings.";
+    let customerPricingReady = false;
+    async function loadPublishedPrices() {
+      const status = document.getElementById("pricingStatus");
+      if (location.protocol === "file:") {
+        status.textContent = "Local preview — using the packaged prices. Online publishing is not connected in this preview.";
+        return;
+      }
+      status.textContent = "Loading current MTEC prices…";
+      document.querySelector(".place-order-btn").disabled = true;
+      try {
+        const response = await fetch("./" + PRICING_FILE + "?v=" + Date.now(), {cache:"no-store"});
+        if (!response.ok) throw new Error("Pricing file returned " + response.status);
+        const data = await response.json();
+        settings = validatePublishedPricing(data);
+        customerPricingReady = true;
+        status.textContent = "";
+        document.querySelector(".place-order-btn").disabled = false;
+        calculateAndRender();
+      } catch (error) {
+        console.error("Could not load current MTEC prices:",error);
+        status.textContent = "Live prices are temporarily unavailable. Please contact MTEC to confirm your quotation.";
+        document.getElementById("unitPrice").textContent = "—";
+        document.getElementById("lineTotal").textContent = "—";
+        document.getElementById("quoteOutput").textContent = "Current prices unavailable. Contact MTEC for a quotation.";
+        document.querySelector(".place-order-btn").disabled = true;
       }
     }
 
@@ -981,10 +969,12 @@ Thank you.`
       });
     }
 
+    displayAppVersion();
+    applyArchivedMachiningVisibility();
     populateDropdowns();
     updateStandardKeyway();
-    renderAdmin();
-    calculateAndRender();
+    onKeywayRequiredChange(); // Initial default: No Keyway.
+    loadPublishedPrices();
   </script>
 </body>
 </html>

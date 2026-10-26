@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "published_at": "2026-10-22T00:00:00Z",
+  "settings": {
+    "minimum_price": 13.5,
+    "grub_screw_price": 3,
+    "grub_screw_second_price": 2.5,
+    "grub_screw_additional_price": 2,
+    "outside_groove_price": 0,
+    "internal_circlip_groove_price": 0,
+    "boss_removal_price": 0,
+    "stainless_multiplier": 1.2,
+    "aluminium_multiplier": 1.0,
+    "non_standard_keyway_uplift": 10.0,
+    "standard_keyway_uplift": 25.0,
+    "general_price_increase": 0.0,
+    "metric_tiers": [
+      {
+        "name": "6-20mm",
+        "max_bore": 20,
+        "base_price": 13.5,
+        "length_rate": 3
+      },
+      {
+        "name": "21-25mm",
+        "max_bore": 25,
+        "base_price": 14.5,
+        "length_rate": 3.5
+      },
+      {
+        "name": "26-30mm",
+        "max_bore": 30,
+        "base_price": 15,
+        "length_rate": 4
+      },
+      {
+        "name": "31-35mm",
+        "max_bore": 35,
+        "base_price": 20,
+        "length_rate": 4.5
+      },
+      {
+        "name": "36-40mm",
+        "max_bore": 40,
+        "base_price": 26,
+        "length_rate": 5.5
+      },
+      {
+        "name": "41-45mm",
+        "max_bore": 45,
+        "base_price": 32,
+        "length_rate": 6.5
+      },
+      {
+        "name": "46-50mm",
+        "max_bore": 50,
+        "base_price": 38,
+        "length_rate": 7.5
+      },
+      {
+        "name": "51-55mm",
+        "max_bore": 55,
+        "base_price": 43,
+        "length_rate": 8.5
+      },
+      {
+        "name": "56-60mm",
+        "max_bore": 60,
+        "base_price": 45,
+        "length_rate": 9.5
+      }
+    ],
+    "quantity_discounts": [
+      {
+        "min_qty": 1,
+        "max_qty": 4,
+        "discount": 0
+      },
+      {
+        "min_qty": 5,
+        "max_qty": 10,
+        "discount": 2
+      },
+      {
+        "min_qty": 11,
+        "max_qty": 30,
+        "discount": 5
+      },
+      {
+        "min_qty": 31,
+        "max_qty": 100,
+        "discount": 8
+      }
+    ]
+  }
+}
