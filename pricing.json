@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "published_at": "2026-10-26T15:12:23.450Z",
+  "published_at": "2026-10-26T15:30:10.983Z",
   "settings": {
     "minimum_price": 13.5,
     "grub_screw_price": 3,
@@ -24,7 +24,7 @@
       {
         "name": "21-25mm",
         "max_bore": 25,
-        "base_price": 14.6,
+        "base_price": 14.5,
         "length_rate": 3.5
       },
       {
